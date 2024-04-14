@@ -1,3 +1,5 @@
+import { EventCenterForMicroApp } from './data'
+
 const rawWindowAddEventListener = window.addEventListener
 const rawWindowRemoveEventListener = window.removeEventListener
 
@@ -54,6 +56,7 @@ export default class SandBox {
   injectedKeys = new Set() // 新添加的属性，在卸载时清空
 
   constructor (appName) {
+    this.microWindow.microApp = new EventCenterForMicroApp(appName)
     this.releaseEffect = effect(this.microWindow)
     this.proxyWindow = new Proxy(this.microWindow, {
       // 取值
@@ -119,7 +122,7 @@ export default class SandBox {
         Reflect.deleteProperty(this.microWindow, key)
       })
       this.injectedKeys.clear()
-
+      this.microWindow.microApp.clearDataListener()
       this.releaseEffect()
     }
   }
