@@ -1,4 +1,5 @@
 import loadHtml from "./source"
+import sandBox from "./sandbox"
 
 // 微应用实例
 export const appInstanceMap = new Map()
@@ -12,6 +13,7 @@ export default class CreateApp {
     this.container = container
     this.status = 'loading'
 
+    this.sandbox = new sandBox(name)
     loadHtml(this)
   }
 
@@ -46,9 +48,11 @@ export default class CreateApp {
     // 将格式化后的DOM结构插入到容器中
     this.container.appendChild(fragment)
 
+    this.sandbox.start()
     // 执行js
     this.source.scripts.forEach((info) => {
-      (0, eval)(info.code) // 绕过eval 执行代码会使用其当前的词法环境
+      (0, eval)(this.sandbox.bindScope(info.code))
+      // (0, eval)(info.code)
     })
 
     // 标记应用为已渲染
@@ -61,6 +65,8 @@ export default class CreateApp {
    this.status = 'unmount'
    // 清空容器
    this.container = null
+   
+   this.sandbox.stop()
    // destroy为true，则删除应用
    if (destroy) {
      appInstanceMap.delete(this.name)
