@@ -1,4 +1,5 @@
 import { fetchSource } from "./utils"
+import scopedCSS from "./scopedCSS"
 
 function normalizeHtml(html) {
   return html.replace(/<head[^>]*>[\s\S]*?<\/head>/i, (match) => {
@@ -55,7 +56,7 @@ function extractSourceDom(parent, app) {
 
     // style inline
     if(dom instanceof HTMLStyleElement) {
-      console.log('style', dom)
+      scopedCSS(dom, app.name)
     }
   }
 }
@@ -76,7 +77,7 @@ function fetchLinksFromHtml(app, microAppHead, htmlDom) {
       // 拿到css资源后放入style元素并插入到micro-app-head中
       const link2Style = document.createElement('style')
       link2Style.textContent = code
-      // scopedCSS(link2Style, app.name)
+      scopedCSS(link2Style, app.name)
       microAppHead.appendChild(link2Style)
       // 将代码放入缓存，再次渲染时可以从缓存中获取
       linkEntries[i][1].code = code
